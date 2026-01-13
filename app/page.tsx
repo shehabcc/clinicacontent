@@ -1,48 +1,70 @@
-export default function Home() {
+
+import { getCMSContent } from "../lib/notion";
+
+export default async function Home() {
+  const content = await getCMSContent().catch(() => []);
+
+  const hero = content.find((c: any) => c.section === "Hero") ?? {
+    title: "ClinicaContent",
+    description: "Physician-curated content for modern healthcare organizations",
+  };
+  const services = (content as any[]).filter((c: any) => c.section === "Services").sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
+  const pricing = (content as any[]).filter((c: any) => c.section === "Pricing").sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
+
   return (
     <main className="min-h-screen bg-gray-50 text-gray-900 font-sans">
       {/* Hero Section */}
       <section className="bg-white py-20 shadow-sm">
         <div className="max-w-5xl mx-auto px-6 text-center">
-          <h1 className="text-5xl font-bold mb-4">ClinicaContent</h1>
-          <p className="text-xl mb-6">
-            Physician-curated content for modern healthcare organizations
-          </p>
+          <h1 className="text-5xl font-bold mb-4">{hero.title}</h1>
+          <p className="text-xl mb-6">{hero.description}</p>
           <button className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition">
             Request a Consultation
           </button>
         </div>
       </section>
-
-      {/* Services Section */}
       <section className="py-16">
         <div className="max-w-5xl mx-auto px-6">
           <h2 className="text-3xl font-semibold mb-10 text-center">Our Services</h2>
           <div className="grid md:grid-cols-2 gap-8">
-            <div className="bg-white p-6 rounded-xl shadow hover:shadow-lg transition">
-              <h3 className="text-xl font-semibold mb-2">Residency Program Website Support</h3>
-              <p className="mb-4">
-                ACGME-aligned, recruitment-focused content for residency and fellowship programs.
-              </p>
-              <ul className="list-disc list-inside text-sm space-y-1">
-                <li>Website audits & rewrites</li>
-                <li>Curriculum & rotation descriptions</li>
-                <li>Faculty, resident & wellness pages</li>
-                <li>Recruitment-season updates</li>
-              </ul>
-            </div>
-            <div className="bg-white p-6 rounded-xl shadow hover:shadow-lg transition">
-              <h3 className="text-xl font-semibold mb-2">Patient Education Handouts</h3>
-              <p className="mb-4">
-                Clear, health-literate, clinic-ready materials tailored to your patient population.
-              </p>
-              <ul className="list-disc list-inside text-sm space-y-1">
-                <li>Plain-language handouts</li>
-                <li>Custom branding</li>
-                <li>Multilingual options</li>
-                <li>Print & digital formats</li>
-              </ul>
-            </div>
+            {services.length > 0 ? (
+              services.map((s: any) => (
+                <div key={s.title} className="bg-white p-6 rounded-xl shadow hover:shadow-lg transition">
+                  <h3 className="text-xl font-semibold mb-2">{s.title}</h3>
+                  <p className="mb-4">{s.description}</p>
+                  {s.bullets && (
+                    <ul className="list-disc list-inside text-sm space-y-1">
+                      {s.bullets.map((b: string, i: number) => (
+                        <li key={i}>{b}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              ))
+            ) : (
+              <>
+                <div className="bg-white p-6 rounded-xl shadow hover:shadow-lg transition">
+                  <h3 className="text-xl font-semibold mb-2">Residency Program Website Support</h3>
+                  <p className="mb-4">ACGME-aligned, recruitment-focused content for residency and fellowship programs.</p>
+                  <ul className="list-disc list-inside text-sm space-y-1">
+                    <li>Website audits & rewrites</li>
+                    <li>Curriculum & rotation descriptions</li>
+                    <li>Faculty, resident & wellness pages</li>
+                    <li>Recruitment-season updates</li>
+                  </ul>
+                </div>
+                <div className="bg-white p-6 rounded-xl shadow hover:shadow-lg transition">
+                  <h3 className="text-xl font-semibold mb-2">Patient Education Handouts</h3>
+                  <p className="mb-4">Clear, health-literate, clinic-ready materials tailored to your patient population.</p>
+                  <ul className="list-disc list-inside text-sm space-y-1">
+                    <li>Plain-language handouts</li>
+                    <li>Custom branding</li>
+                    <li>Multilingual options</li>
+                    <li>Print & digital formats</li>
+                  </ul>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </section>
